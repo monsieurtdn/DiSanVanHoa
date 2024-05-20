@@ -19,16 +19,57 @@ export const SearchScreen: React.FC = () => {
   const eventList = useSelectorRoot((state: RootState) => state.site.events);
   const siteList = useSelectorRoot((state: RootState) => state.site.sites);
   const [searchList, setSearchList] = useState<any[]>([]);
+  const [message, setMessage] = useState('');
   const [query, setQuery] = useState('');
   const [show, setShow] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const types = [ 'Di sản', 'Sự kiện'];
-  const categories = ['Di sản vật thể', 'Di sản phi vật thể'];
-  const tangibles = ['Di tích lịch sử', 'Danh lam thắng cảnh', 'Cổ vật'];
-  const intangibles = ['Lễ hội', 'Ẩm thực', 'Trang phục'];
-  const regions = ['Miền Bắc', 'Miền Trung', 'Miền Nam'];
+  const [selectedCategory, setSelectedCategory] = useState<{
+    key: string;
+    value: string;
+  } | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<{
+    key: string;
+    value: string;
+  } | null>(null);
+  const [selectedTypes, setSelectedTypes] = useState<string | null>(null);
+  const [selected, setSelected] = useState<{
+    key: string;
+    value: string;
+  } | null>(null);
+  const [menu1, setMenu1] = useState<
+    | {
+        key: string;
+        value: string;
+      }[]
+  >([]);
+  const [menu2, setMenu2] = useState<
+    | {
+        key: string;
+        value: string;
+      }[]
+  >([]);
+  const [noResults, setNoResults] = useState(false);
+
+  const types = ['Di sản', 'Sự kiện'];
+  const categories = [
+    {key: 'tangible', value: 'Di sản vật thể'},
+    {key: 'intangible', value: 'Di sản phi vật thể'},
+  ];
+  const tangibles = [
+    {key: 'historical sites', value: 'Di tích lịch sử'},
+    {key: 'scenic views', value: 'Danh lam thắng cảnh'},
+    {key: 'artifacts', value: 'Cổ vật'},
+  ];
+  const intangibles = [
+    {key: 'festivals', value: 'Lễ hội'},
+    {key: 'foods', value: 'Ẩm thực'},
+    {key: 'costumes', value: 'Trang phục'},
+  ];
+  const regions = [
+    {key: 'Bac', value: 'Miền Bắc'},
+    {key: 'Trung', value: 'Miền Trung'},
+    {key: 'Nam', value: 'Miền Nam'},
+  ];
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -39,13 +80,57 @@ export const SearchScreen: React.FC = () => {
     }
   }, [query]);
 
+  useEffect(() => {
+    setSelectedCategory(null);
+    setSelected(null);
+    if (selectedTypes === 'Di sản') {
+      setMenu1(categories);
+    } else {
+      setMenu1([]);
+      setMenu2([]);
+    }
+  }, [selectedTypes]);
+
+  useEffect(() => {
+    if (selectedCategory?.value === 'Di sản vật thể') {
+      setMenu2(tangibles);
+    } else if (selectedCategory?.value === 'Di sản phi vật thể') {
+      setMenu2(intangibles);
+    } else {
+      setMenu2([]);
+    }
+  }, [selectedCategory]);
+
   const handleFocus = () => {
     setIsFocused(true);
   };
 
   const KeyboardDismiss = () => Keyboard.dismiss();
 
-  const handleSearch = () => {};
+  const handleSearch = () => {
+    let results = [];
+    if (selectedTypes === 'Di sản') {
+      results = siteList.filter(e => {
+        if (selectedCategory === null) {
+          return true;
+        } else if (selected === null) {
+          return e.category === selectedCategory.key;
+        } else if (selected !== null) {
+          return e.category === selectedCategory.key && e.type === selected.key;
+        }
+        return false;
+      });
+      results = results.filter(result => result.name.includes(query));
+      setMessage('');
+    } else {
+      results = eventList.filter(result => result.event_name.includes(query));
+
+      setMessage('Event');
+    }
+    setSearchList(results);
+    setShow(true);
+    setNoResults(results.length === 0);
+  };
 
   return (
     <View style={styles.container}>
@@ -98,36 +183,91 @@ export const SearchScreen: React.FC = () => {
       <ScrollView style={{paddingLeft: 5}}>
         <Text style={{color: 'black', fontSize: 16}}>Danh mục tìm kiếm: </Text>
         <ScrollView horizontal style={{flexDirection: 'row', paddingLeft: 10}}>
-          {categories.map(category => (
+          {types.map(type => (
             <TouchableOpacity
-              key={category}
+              key={type}
               style={[
                 styles.categoryItem,
-                selectedCategory === category && styles.selectedCategoryItem,
+                selectedTypes === type && styles.selectedCategoryItem,
               ]}
-              onPress={() => setSelectedCategory(category)}>
+              onPress={() => setSelectedTypes(type)}>
               <Text
                 style={{
-                  color: selectedCategory === category ? 'white' : 'black',
+                  color: selectedTypes === type ? 'white' : 'black',
                 }}>
-                {category}
+                {type}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
+        {menu1.length > 0 && (
+          <>
+            <Text style={{color: 'black', fontSize: 16}}>Loại di sản: </Text>
+            <ScrollView
+              horizontal
+              style={{flexDirection: 'row', paddingLeft: 10}}>
+              {menu1.map(category => (
+                <TouchableOpacity
+                  key={category.key}
+                  style={[
+                    styles.categoryItem,
+                    selectedCategory?.key === category.key &&
+                      styles.selectedCategoryItem,
+                  ]}
+                  onPress={() => setSelectedCategory(category)}>
+                  <Text
+                    style={{
+                      color: selectedCategory === category ? 'white' : 'black',
+                    }}>
+                    {category.value}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </>
+        )}
+        {menu2.length > 0 && (
+          <>
+            <Text style={{color: 'black', fontSize: 16}}>Chi tiết: </Text>
+            <ScrollView
+              horizontal
+              style={{flexDirection: 'row', paddingLeft: 10}}>
+              {menu2.map(tangible => (
+                <TouchableOpacity
+                  key={tangible.key}
+                  style={[
+                    styles.categoryItem,
+                    selected?.key === tangible.key &&
+                      styles.selectedCategoryItem,
+                  ]}
+                  onPress={() => setSelected(tangible)}>
+                  <Text
+                    style={{
+                      color: selected === tangible ? 'white' : 'black',
+                    }}>
+                    {tangible.value}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </>
+        )}
         <Text style={{color: 'black', fontSize: 16}}>Vùng miền:</Text>
         <ScrollView horizontal style={{flexDirection: 'row', paddingLeft: 10}}>
           {regions.map(region => (
             <TouchableOpacity
-              key={region}
+              key={region.key}
               style={[
                 styles.categoryItem,
-                selectedRegion === region && styles.selectedCategoryItem,
+                selectedRegion?.key === region.key &&
+                  styles.selectedCategoryItem,
               ]}
               onPress={() => setSelectedRegion(region)}>
               <Text
-                style={{color: selectedRegion === region ? 'white' : 'black'}}>
-                {region}
+                style={{
+                  color: selectedRegion?.key === region.key ? 'white' : 'black',
+                }}>
+                {region.value}
               </Text>
             </TouchableOpacity>
           ))}
@@ -135,7 +275,14 @@ export const SearchScreen: React.FC = () => {
         <TouchableOpacity onPress={handleSearch} style={styles.button}>
           <Text style={styles.buttonText}>Tìm kiếm</Text>
         </TouchableOpacity>
-        {show && <SearchList dataList={searchList} />}
+        {show && searchList.length === 0 && (
+          <Text style={{color: 'red', textAlign: 'center', marginTop: 10}}>
+            Không tìm thấy kết quả
+          </Text>
+        )}
+        {show && searchList.length > 0 && (
+          <SearchList dataList={searchList} message={message} />
+        )}
       </ScrollView>
     </View>
   );

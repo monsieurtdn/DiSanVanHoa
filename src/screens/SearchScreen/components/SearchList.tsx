@@ -1,24 +1,33 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SearchItem } from './SearchItem';
 
 interface Props {
-  dataList: any;
+  dataList: string[];
+  message: string; // Add the message prop
 }
 
 export const SearchList: React.FC<Props> = (props: Props) => {
-  const {dataList} = props;
+  const {dataList, message} = props; // Destructure message prop
+
   const navigation = useNavigation();
-  const renderSearchItem = ({item}: {item: any}) => (
-    <SearchItem navigation={navigation} data={item} /> // Use item instead of data
+  const windowWidth = useWindowDimensions().width;
+  const itemWidth = 160; // Assuming each item is 160 in width
+  const numColumns = Math.floor(windowWidth / itemWidth);
+
+  const renderSearchItem = ({item}: {item: string}) => (
+    <View style={styles.itemContainer}>
+      <SearchItem data={item} navigation={navigation} message={message} />
+    </View>
   );
 
   return (
     <FlatList
       data={dataList}
       renderItem={renderSearchItem}
-      numColumns={2}
+      numColumns={numColumns}
+      keyExtractor={(item, index) => index.toString()}
       contentContainerStyle={styles.container}
     />
   );
@@ -27,5 +36,9 @@ export const SearchList: React.FC<Props> = (props: Props) => {
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 10,
+  },
+  itemContainer: {
+    flex: 1,
+    padding: 5,
   },
 });

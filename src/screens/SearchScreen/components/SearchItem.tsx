@@ -1,30 +1,37 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface INavigation {
   navigation: any;
   data: any;
+  message: string; // Add the message prop
 }
+
 export const SearchItem: React.FC<INavigation> = props => {
-  const {navigation, data} = props;
-  useEffect(() => {
-    console.log(data);
-  });
+  const {navigation, data, message} = props; // Destructure message prop
+
+  const navigateToScreen = () => {
+    const targetScreen =
+      message === 'Event' ? 'EventContentScreen' : 'ContentScreen';
+    navigation.navigate(targetScreen, {data: data});
+    console.log('navigated', message);
+  };
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('ContentScreen', {data});
-        }}>
+      <TouchableOpacity onPress={navigateToScreen}>
         <Image
-          source={require('../../../../images/DenHung.png')}
+          source={{
+            uri: data.image_link,
+          }}
           style={styles.itemImage}
         />
         <View style={styles.overlay} />
       </TouchableOpacity>
       <View style={styles.boxShadow}>
         <View style={styles.textContainer}>
-          <Text style={styles.productName}>{data.name}</Text>
+          <Text style={styles.productName}>
+            {message === 'Event' ? data.event_name : data.name}
+          </Text>
         </View>
       </View>
     </View>
@@ -37,6 +44,7 @@ const styles = StyleSheet.create({
     margin: 8,
     borderRadius: 10,
     overflow: 'hidden',
+    paddingHorizontal: 5,
   },
   itemImage: {
     width: '100%',
@@ -47,10 +55,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: 'center',
     color: 'black',
-  },
-  priceText: {
-    fontSize: 14,
-    textAlign: 'center',
   },
   boxShadow: {
     shadowColor: 'black',
@@ -73,5 +77,23 @@ const styles = StyleSheet.create({
     height: 30,
     backgroundColor: '#000',
     opacity: 0.5,
+  },
+  minusButton: {
+    position: 'absolute',
+    bottom: 165,
+    left: 10,
+    height: 25,
+    width: 25,
+    borderRadius: 15, // Rounded corners
+    backgroundColor: 'white', // White background
+    paddingHorizontal: 10, // Horizontal padding
+    paddingVertical: 5, // Vertical padding
+    alignItems: 'center', // Center align text
+    justifyContent: 'center', // Center align text vertically
+  },
+  minusButtonText: {
+    color: 'blue', // Blue text color
+    fontSize: 18, // Adjust the font size as needed
+    fontWeight: 'bold', // Optional: bold text
   },
 });

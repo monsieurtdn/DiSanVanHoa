@@ -91,7 +91,7 @@ export const WelcomeScreen: React.FC<INavigation> = props => {
       dispatch(
         // addListProduct(Products[`${data.name}`])
         addSite({
-          id: item._id,
+          _id: item._id,
           name: item.name,
           location: item.address + ', ' + item.province_name,
           content: item.content,
@@ -109,7 +109,7 @@ export const WelcomeScreen: React.FC<INavigation> = props => {
     dataEvent.map(item => {
       dispatch(
         addEvent({
-          id: item._id,
+          _id: item._id,
           event_name: item.event_name,
           event_date: item.event_date,
           author: item.author,

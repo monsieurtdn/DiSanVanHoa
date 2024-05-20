@@ -97,7 +97,13 @@ export const Items: React.FC<INavigation> = props => {
         <View style={styles.overlay} />
       </TouchableOpacity>
       <View>
-        <TouchableOpacity style={styles.minusButton}>
+        <TouchableOpacity
+          style={styles.minusButton}
+          onPress={() => {
+            message === 'Event'
+              ? eventsApi.removeEventToFavByID(items._id)
+              : heritagesApi.removeHeritagesToFavByID(items._id);
+          }}>
           <DeleteButton />
         </TouchableOpacity>
       </View>
