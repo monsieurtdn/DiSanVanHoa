@@ -1,5 +1,7 @@
 package com.disanvanhoa
 
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;  // <-- Add this line
+
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled

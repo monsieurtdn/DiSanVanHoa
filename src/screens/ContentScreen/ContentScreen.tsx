@@ -11,8 +11,10 @@ import {
   View,
 } from 'react-native';
 import { Icon } from 'react-native-paper';
+import PushNotification from 'react-native-push-notification';
 import Sound from 'react-native-sound';
 import YoutubePlayer from 'react-native-youtube-iframe';
+import heritagesApi from '../../api/heritages';
 import textToSpeechApi from '../../api/textToSpeech';
 import { Header } from '../../components/Header';
 interface ContentItem {
@@ -45,6 +47,17 @@ export const ContentScreen: React.FC<any> = ({route}) => {
   }, [item]);
   // Inside your component
   const soundRef = useRef<Sound | null>(null); // Step 2: Define a ref to hold the sound object
+
+  const showNotification = () => {
+    PushNotification.localNotification({
+      channelId: 'default-channel-id',
+      message: 'Thêm thành công!', // (required)
+      playSound: true, // (optional) default: true
+      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      importance: 'high', // (optional) default: high
+      vibrate: true, // (optional) default: true
+    });
+  };
 
   const playSound = (
     soundUrl: string,
@@ -187,7 +200,12 @@ export const ContentScreen: React.FC<any> = ({route}) => {
               {getLocation(item)}
             </Text>
           </View>
-          <TouchableOpacity style={styles.interestButton}>
+          <TouchableOpacity
+            style={styles.interestButton}
+            onPress={() => {
+              heritagesApi.addHeritagesToFavByID(item._id);
+              showNotification();
+            }}>
             <Text style={styles.buttonText}>Quan tâm</Text>
           </TouchableOpacity>
           {contents.map((content, index) => (

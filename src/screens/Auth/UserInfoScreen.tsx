@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { Badge } from 'react-native-paper';
 import CQuestionModel from '../../components/CQuestionModel';

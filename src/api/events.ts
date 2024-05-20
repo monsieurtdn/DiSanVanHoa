@@ -40,7 +40,10 @@ export default class eventsApi {
         'Content-Type': 'application/json',
       },
     }).pipe(
-      map(res => (res as any) || null),
+      map(res => {
+        console.log(res);
+        return (res as any) || null;
+      }),
       catchError((e: AjaxError) => throwError(e)),
     );
   }

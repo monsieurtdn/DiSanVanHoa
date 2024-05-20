@@ -6,7 +6,7 @@ export interface attr {
 }
 
 export interface ISite {
-  id: string;
+  _id: string;
   name: string;
   location: string;
   content: attr[];
@@ -25,7 +25,7 @@ export interface ResponseToken {
 }
 
 export interface IEvent {
-  id: string;
+  _id: string;
   event_name: string;
   event_date: string;
   author: string;

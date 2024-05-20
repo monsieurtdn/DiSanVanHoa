@@ -11,10 +11,13 @@ import {
   View,
 } from 'react-native';
 import { Icon } from 'react-native-paper';
+import PushNotification from 'react-native-push-notification';
 import Sound from 'react-native-sound';
 import YoutubePlayer from 'react-native-youtube-iframe';
+import eventsApi from '../../api/events';
 import textToSpeechApi from '../../api/textToSpeech';
 import { Header } from '../../components/Header';
+
 function formatDate(dateString: string): string {
   // Parse the date string
   const date = new Date(dateString);
@@ -39,6 +42,17 @@ export const EventContentScreen: React.FC<any> = ({route}) => {
   const [textContent, setTextContent] = useState<string>('');
   // Inside your component
   const soundRef = useRef<Sound | null>(null); // Step 2: Define a ref to hold the sound object
+
+  const showNotification = () => {
+    PushNotification.localNotification({
+      channelId: 'default-channel-id',
+      message: 'Thêm thành công!', // (required)
+      playSound: true, // (optional) default: true
+      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      importance: 'high', // (optional) default: high
+      vibrate: true, // (optional) default: true
+    });
+  };
 
   const playSound = (
     soundUrl: string,
@@ -161,7 +175,13 @@ export const EventContentScreen: React.FC<any> = ({route}) => {
               {formatDate(item.event_date)}
             </Text>
           </View>
-          <TouchableOpacity style={styles.interestButton}>
+          <TouchableOpacity
+            style={styles.interestButton}
+            onPress={() => {
+              showNotification();
+              eventsApi.addEventToFavByID(item._id);
+              // eventsApi.addEventToFavByID(item._id).unsubscribe;
+            }}>
             <Text style={styles.buttonText}>Quan tâm</Text>
           </TouchableOpacity>
           <View style={{flexDirection: 'row', marginTop: 20}}>

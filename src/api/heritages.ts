@@ -35,7 +35,18 @@ export default class heritagesApi {
   }
   static addHeritagesToFavByID(id: string): Observable<any> {
     const api = `http://192.168.1.4:8000/v1/heritage/addToInterest/${id}`;
-    return HttpClient.get(api, {
+    return HttpClient.post(api, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).pipe(
+      map(res => (res as any) || null),
+      catchError((e: AjaxError) => throwError(e)),
+    );
+  }
+  static removeHeritagesToFavByID(id: string): Observable<any> {
+    const api = `http://192.168.1.4:8000/v1/heritage/removeFromInterest/${id}`;
+    return HttpClient.post(api, {
       headers: {
         'Content-Type': 'application/json',
       },
